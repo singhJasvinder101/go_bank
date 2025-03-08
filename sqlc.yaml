@@ -1,12 +1,12 @@
 version: "2"
 sql:
   - engine: "postgresql"
-    queries: "db/queries"          # Directory containing your query files (e.g., account.sql)
-    schema: "db/migrations"        # Directory containing your schema files (e.g., 000001_init_schema.up.sql)
+    queries: "db/queries"          # directory containing your query files
+    schema: "db/migrations"        # directory containing your schema files
     gen:
       go:
         package: "db"              # Go package name for generated code
-        sql_package: "pgx/v5"      # Use pgx/v5 as the SQL driver
-        out: "db/sqlc"                  # Output directory for generated Go files
-        emit_json_tags: true       # Optional: Add JSON tags to structs (useful for APIs)
-        emit_interface: true       # Optional: Generate an interface for querier
+        sql_package: "pgx/v5"      # using pgx/v5 as the SQL driver
+        out: "db/sqlc"             # Output directory for generated Go files
+        emit_json_tags: true       # add JSON tags to structs like `json:"column_name"`
+        emit_interface: true       # gnerate an interface for querier
