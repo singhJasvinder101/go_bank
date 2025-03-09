@@ -1,8 +1,8 @@
 version: "2"
 sql:
   - engine: "postgresql"
-    queries: "db/queries"          # directory containing your query files
-    schema: "db/migrations"        # directory containing your schema files
+    queries: "db/queries"          # directory containing query files
+    schema: "db/migrations"        # directory containing schema files
     gen:
       go:
         package: "db"              # Go package name for generated code
