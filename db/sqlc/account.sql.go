@@ -36,6 +36,16 @@ func (q *Queries) CreateAccount(ctx context.Context, arg CreateAccountParams) (A
 	return i, err
 }
 
+const deleteAccountByID = `-- name: DeleteAccountByID :exec
+delete from accounts
+where id = $1
+`
+
+func (q *Queries) DeleteAccountByID(ctx context.Context, id int64) error {
+	_, err := q.db.Exec(ctx, deleteAccountByID, id)
+	return err
+}
+
 const getAccountById = `-- name: GetAccountById :one
 select id, owner, balance, currency, created_at from accounts
 where id = $1 limit 1
@@ -90,4 +100,20 @@ func (q *Queries) ListAccounts(ctx context.Context, arg ListAccountsParams) ([]A
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateAccountByID = `-- name: UpdateAccountByID :exec
+update accounts 
+set balance = $2
+where id = $1
+`
+
+type UpdateAccountByIDParams struct {
+	ID      int64 `json:"id"`
+	Balance int64 `json:"balance"`
+}
+
+func (q *Queries) UpdateAccountByID(ctx context.Context, arg UpdateAccountByIDParams) error {
+	_, err := q.db.Exec(ctx, updateAccountByID, arg.ID, arg.Balance)
+	return err
 }

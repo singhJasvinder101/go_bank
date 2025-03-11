@@ -20,6 +20,7 @@ func TestMain(m *testing.M) {
         log.Fatal("cannot parse db config: ", err)
     }
 
+    // pgxpool to create a connection pool (compatible with sqlc)
     testDB, err = pgxpool.NewWithConfig(context.Background(), config)
     if err != nil {
         log.Fatal("cannot connect to db: ", err)
