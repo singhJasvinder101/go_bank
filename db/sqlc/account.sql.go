@@ -102,10 +102,11 @@ func (q *Queries) ListAccounts(ctx context.Context, arg ListAccountsParams) ([]A
 	return items, nil
 }
 
-const updateAccountByID = `-- name: UpdateAccountByID :exec
-update accounts 
-set balance = $2
-where id = $1
+const updateAccountByID = `-- name: UpdateAccountByID :one
+UPDATE accounts
+SET balance = $2
+WHERE id = $1
+RETURNING id, owner, balance, currency, created_at
 `
 
 type UpdateAccountByIDParams struct {
@@ -113,7 +114,15 @@ type UpdateAccountByIDParams struct {
 	Balance int64 `json:"balance"`
 }
 
-func (q *Queries) UpdateAccountByID(ctx context.Context, arg UpdateAccountByIDParams) error {
-	_, err := q.db.Exec(ctx, updateAccountByID, arg.ID, arg.Balance)
-	return err
+func (q *Queries) UpdateAccountByID(ctx context.Context, arg UpdateAccountByIDParams) (Account, error) {
+	row := q.db.QueryRow(ctx, updateAccountByID, arg.ID, arg.Balance)
+	var i Account
+	err := row.Scan(
+		&i.ID,
+		&i.Owner,
+		&i.Balance,
+		&i.Currency,
+		&i.CreatedAt,
+	)
+	return i, err
 }

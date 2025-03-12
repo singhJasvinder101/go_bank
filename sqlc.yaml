@@ -1,12 +1,25 @@
 version: "2"
 sql:
   - engine: "postgresql"
-    queries: "db/queries"          # directory containing query files
-    schema: "db/migrations"        # directory containing schema files
+    queries: "db/queries"          # query files
+    schema: "db/migrations"        # schema files
     gen:
       go:
-        package: "db"              # Go package name for generated code
-        sql_package: "pgx/v5"      # using pgx/v5 as the SQL driver
-        out: "db/sqlc"             # Output directory for generated Go files
+        package: "db"              # generated Go package
+        sql_package: "pgx/v5"      # pgx/v5 as SQL driver
+        out: "db/sqlc"             # Output generated files
         emit_json_tags: true       # add JSON tags to structs like `json:"column_name"`
-        emit_interface: true       # gnerate an interface for querier
+        emit_interface: true       # interface for queries
+        overrides:
+          - column: "transfers.from_account_id"
+            go_type: "int64"
+          - column: "transfers.to_account_id"
+            go_type: "int64"
+          - column: "transfers.amount"
+            go_type: "int64"
+          - column: "entries.account_id"
+            go_type: "int64"
+          - column: "entries.amount"
+            go_type: "int64"
+          - column: "accounts.balance"
+            go_type: "int64"

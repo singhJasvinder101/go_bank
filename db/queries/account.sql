@@ -15,10 +15,11 @@ order by id
 limit $1
 offset $2;
 
--- name: UpdateAccountByID :exec
-update accounts 
-set balance = $2
-where id = $1;
+-- name: UpdateAccountByID :one
+UPDATE accounts
+SET balance = $2
+WHERE id = $1
+RETURNING *;
 
 
 -- name: DeleteAccountByID :exec
