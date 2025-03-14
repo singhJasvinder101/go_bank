@@ -67,7 +67,7 @@ func (q *Queries) GetAccountById(ctx context.Context, id int64) (Account, error)
 const getAccountForUpdate = `-- name: GetAccountForUpdate :one
 select id, owner, balance, currency, created_at from accounts
 where id = $1 limit 1
-for update
+for no key update
 `
 
 func (q *Queries) GetAccountForUpdate(ctx context.Context, id int64) (Account, error) {
@@ -119,6 +119,31 @@ func (q *Queries) ListAccounts(ctx context.Context, arg ListAccountsParams) ([]A
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateAccountBalanceByID = `-- name: UpdateAccountBalanceByID :one
+update accounts
+set balance = balance + $1
+where id = $2
+RETURNING id, owner, balance, currency, created_at
+`
+
+type UpdateAccountBalanceByIDParams struct {
+	Amount    int64 `json:"amount"`
+	AccountID int64 `json:"account_id"`
+}
+
+func (q *Queries) UpdateAccountBalanceByID(ctx context.Context, arg UpdateAccountBalanceByIDParams) (Account, error) {
+	row := q.db.QueryRow(ctx, updateAccountBalanceByID, arg.Amount, arg.AccountID)
+	var i Account
+	err := row.Scan(
+		&i.ID,
+		&i.Owner,
+		&i.Balance,
+		&i.Currency,
+		&i.CreatedAt,
+	)
+	return i, err
 }
 
 const updateAccountByID = `-- name: UpdateAccountByID :one
