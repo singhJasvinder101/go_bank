@@ -1,6 +1,6 @@
 module github.com/singhJasvinder101/go_bank
 
-go 1.23.6
+go 1.23
 
 require (
 	github.com/jackc/pgx/v5 v5.7.2
