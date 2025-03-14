@@ -7,8 +7,23 @@ createDB:
 dropDB:
 	docker exec -it postgres dropdb go_bank
 
-migrateUp:
+migrateup:
 	migrate -path db/migrations -database "postgresql://postgres:123@localhost:5432/go_bank?sslmode=disable" -verbose up
+
+migrateup1:
+	migrate -path db/migrations -database "postgresql://postgres:123@localhost:5432/go_bank?sslmode=disable" -verbose up 1
+
+migratedown:
+	migrate -path db/migrations -database "postgresql://postgres:123@localhost:5432/go_bank?sslmode=disable" -verbose down    
+
+migratedown1:
+	migrate -path db/migrations -database "postgresql://postgres:123@localhost:5432/go_bank?sslmode=disable" -verbose down 1    
+
+migratedirty:
+	migrate -path db/migrations -database "postgresql://postgres:123@localhost:5432/go_bank?sslmode=disable" -verbose force 1
+
+migratestatus:
+	migrate -path db/migrations -database "postgresql://postgres:123@localhost:5432/go_bank?sslmode=disable" -verbose version
 
 sqlc:
 	sqlc generate

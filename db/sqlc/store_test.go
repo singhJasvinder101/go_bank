@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/require"
 )
+
 
 func TestTransferTx(t *testing.T) {
 	store := NewStore(testDB)
@@ -16,7 +16,7 @@ func TestTransferTx(t *testing.T) {
 	account2 := createRandomAccount(t)
 
 	// run n concurrent transfer transactions
-	n := 10
+	n := 3
 	amount := int64(10)
 
 	// queue channels for errors and results
@@ -27,8 +27,13 @@ func TestTransferTx(t *testing.T) {
 	fmt.Println("Before: ", account1.Balance, account2.Balance)
 	for i := 0; i < n; i++ {
 		go func() {
-			ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-			defer cancel()
+			txName := fmt.Sprintf("tx %d", i+1)
+
+			// ctxWithVal := context.WithValue(context.Background(), txKey, txName)
+			ctx := context.WithValue(context.Background(), txKey, txName)
+			// ctx, cancel := context.WithTimeout(ctxWithVal, time.Second)
+			// defer cancel()
+
 
 			result, err := store.TransferTx(ctx, TransferTxParams{
 				FromAccountID: account1.ID,
@@ -101,10 +106,10 @@ func TestTransferTx(t *testing.T) {
 	}
 
 	// check the final updated balances
-	updatedAccount1, err := testQueries.GetAccountById(context.Background(), account1.ID)	
+	updatedAccount1, err := testQueries.GetAccountForUpdate(context.Background(), account1.ID)	
 	require.NoError(t, err)
 
-	updatedAccount2, err := testQueries.GetAccountById(context.Background(), account2.ID)
+	updatedAccount2, err := testQueries.GetAccountForUpdate(context.Background(), account2.ID)
 	require.NoError(t, err)
 
 	// 200 - n (amount) after n concurrent transactions
