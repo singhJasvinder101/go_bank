@@ -16,7 +16,7 @@ type Store struct {
 func NewStore(db *pgxpool.Pool) *Store {
 	return &Store{
 		db:      db,
-		Queries: New(db),
+		Queries: New(db), // create Queries object to be used for testing in store_test
 	}
 }
 
@@ -62,7 +62,7 @@ var txKey = struct{}{}
 func (store *Store) TransferTx(ctx context.Context, arg TransferTxParams) (TransferTxResult, error) {
 	var result TransferTxResult
 
-	err := store.execTx(ctx, func(q *Queries) error {
+    err := store.execTx(ctx, func(q *Queries) error {
 		var err error
 		txName := ctx.Value(txKey)
 
