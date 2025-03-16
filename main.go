@@ -1,21 +1,23 @@
 package main
 
 import (
-    "context"
-    "log"
+	"context"
+	"log"
 
-    "github.com/jackc/pgx/v5/pgxpool"
-    server "github.com/singhJasvinder101/go_bank/api"
-    db "github.com/singhJasvinder101/go_bank/db/sqlc"
-)
-
-const (
-    dbSource = "postgresql://postgres:123@localhost:5432/go_bank?sslmode=disable"
-    address  = "localhost:3000"
+	"github.com/jackc/pgx/v5/pgxpool"
+	server "github.com/singhJasvinder101/go_bank/api"
+	db "github.com/singhJasvinder101/go_bank/db/sqlc"
+	"github.com/singhJasvinder101/go_bank/utils"
 )
 
 func main() {
-    config, err := pgxpool.ParseConfig(dbSource)
+    env_config, err := utils.LoadConfig(".")
+    if err != nil {
+        log.Fatal("cannot load config: ", err)
+    }
+
+
+    config, err := pgxpool.ParseConfig(env_config.DB_SOURCE)
     if err != nil {
         log.Fatal("cannot parse db config: ", err)
     }
@@ -28,7 +30,7 @@ func main() {
     store := db.NewStore(conn)
     srv := server.NewServer(store)
 
-    err = srv.Start(address)
+    err = srv.Start(env_config.ADDRESS)
     if err != nil {
         log.Fatal("cannot start server: ", err)
     }

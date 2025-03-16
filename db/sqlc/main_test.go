@@ -1,21 +1,26 @@
 package db
 
 import (
-    "context"
-    "log"
-    "os"
-    "testing"
+	"context"
+	"log"
+	// "os"
+	"testing"
 
-    "github.com/jackc/pgx/v5/pgxpool"
+	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/singhJasvinder101/go_bank/utils"
 )
 
 var testQueries *Queries
 var testDB *pgxpool.Pool
 
-const dbSource = "postgresql://postgres:123@localhost:5432/go_bank?sslmode=disable"
 
-func TestMain(m *testing.M) {
-    config, err := pgxpool.ParseConfig(dbSource)
+func TestMain(m *testing.T) {
+    env_config, err := utils.LoadConfig("../../")
+    if err != nil {
+        log.Fatal("cannot load config: ", err)
+    }
+
+    config, err := pgxpool.ParseConfig(env_config.DB_SOURCE)
     if err != nil {
         log.Fatal("cannot parse db config: ", err)
     }
@@ -28,5 +33,4 @@ func TestMain(m *testing.M) {
 
     testQueries = New(testDB)
 
-    os.Exit(m.Run())
 }

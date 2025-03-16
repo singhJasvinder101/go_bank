@@ -10,6 +10,7 @@ sql:
         out: "db/sqlc"             # Output generated files
         emit_json_tags: true       # add JSON tags to structs like `json:"column_name"`
         emit_interface: true       # interface for queries
+        emit_empty_slices: true    # return empty slices instead of null
         overrides:
           - column: "transfers.from_account_id"
             go_type: "int64"
