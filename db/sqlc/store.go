@@ -8,19 +8,27 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-type Store struct {
+
+// interface for all db function to make mock args by mockDB
+type Store interface{
+	TransferTx(ctx context.Context, arg TransferTxParams) (TransferTxResult, error)
+	Querier
+}
+
+type SQLStore struct {
 	*Queries               // methods provided by sqlc generated Queries struct
 	db       *pgxpool.Pool // connection pool for PSQL to begin db.BeginTx
 }
 
-func NewStore(db *pgxpool.Pool) *Store {
-	return &Store{
+func NewStore(db *pgxpool.Pool) *SQLStore {
+	return &SQLStore{
 		db:      db,
 		Queries: New(db), // create Queries object to be used for testing in store_test
 	}
 }
 
-func (s *Store) execTx(ctx context.Context, fn func(*Queries) error) error {
+
+func (s *SQLStore) execTx(ctx context.Context, fn func(*Queries) error) error {
 	tx, err := s.db.BeginTx(ctx, pgx.TxOptions{})
 	if err != nil {
 		return err
@@ -59,7 +67,7 @@ var txKey = struct{}{}
 
 // TransferTx performs a money transfer from one account to the other.
 // It creates a transfer record, add account entries, and update accounts' balance within a single database transaction.
-func (store *Store) TransferTx(ctx context.Context, arg TransferTxParams) (TransferTxResult, error) {
+func (store *SQLStore) TransferTx(ctx context.Context, arg TransferTxParams) (TransferTxResult, error) {
 	var result TransferTxResult
 
     err := store.execTx(ctx, func(q *Queries) error {

@@ -3,6 +3,8 @@ package db
 import (
 	"context"
 	"log"
+	"os"
+
 	// "os"
 	"testing"
 
@@ -14,7 +16,7 @@ var testQueries *Queries
 var testDB *pgxpool.Pool
 
 
-func TestMain(m *testing.T) {
+func TestMain(m *testing.M) {
     env_config, err := utils.LoadConfig("../../")
     if err != nil {
         log.Fatal("cannot load config: ", err)
@@ -32,5 +34,5 @@ func TestMain(m *testing.T) {
     }
 
     testQueries = New(testDB)
-
+    os.Exit(m.Run()) 
 }
