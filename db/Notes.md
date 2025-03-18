@@ -427,3 +427,100 @@ RETURNING *;
 - **Best Practice**: Move to Approach 5 (Optimistic Concurrency with Retries) for production systems with high concurrency, as it balances performance and consistency effectively.
 
 Let me know if you’d like me to refine any specific approach further or address a particular error in your code!
+
+
+# curl: (56) Recv failure: Connection reset by peer
+## ADDRESS might be set to localhost:3000, which means the server will only be accessible inside the container.
+in app.env
+```
+ADDRESS=0.0.0.0:3000
+```
+
+# connection refused error when tested api
+## postgres was also running and api also at 3000
+## reason: using localhost for postgres connection in env @localhost:5432
+## instead write the IP of the container bcoz dono ke localhost alg network pe ha
+## A bridge network in Docker is a private, internal network that containers use to communicate with each other. By default, when you run a container without specifying a network, it is attached to the default bridge network called "bridge".
+## Each container gets a unique internal IP (e.g. 172.17.0.3)Containers in the bridge network can talk to each other using these IPs. The host machine (jispe chla rhe ha container) can access the container using localhost (if ports are exposed)
+
+# **Conclusion**
+## so containers can communicate to each other using IP only while we can talk directly to them via localhost as host machine if the port is exposed of the container
+
+## **What Does Docker's Default Bridge Network Do?**  
+
+### **1️⃣ Creates an Isolated Virtual Network**
+When you install Docker, it automatically creates a default **bridge network** named `"bridge"`.  
+This acts like a virtual router that connects containers **without exposing them to the outside world directly**.
+get more details of network by
+`docker network inspect bridge`
+
+---
+
+### **2️⃣ Allows Containers to Communicate via IP Address**
+- When you run a container, it gets assigned a **private IP address** inside this network.  
+- Containers can communicate with each other using these **internal IPs**, e.g., `172.17.0.2`, `172.17.0.3`, etc.
+- The network's **Gateway (`172.17.0.1`)** acts like a router between the host and containers.
+
+---
+
+### **3️⃣ Enables Port Forwarding for Host-Container Communication**
+By default, containers **cannot** be accessed from outside unless you **publish** a port using `-p`:
+```sh
+docker run -p 8080:80 nginx
+```
+- This maps `localhost:8080` on the host to `80` inside the container.
+- Now, accessing `http://localhost:8080` will reach the Nginx container.
+
+Without `-p`, the container is **isolated** from the host system.
+
+---
+
+### **4️⃣ Does NOT Allow Container Name-Based Communication**
+- If two containers are on the default bridge, **they cannot reach each other using names** (e.g., `my_postgres`).
+- You **must use internal IPs**, which change when the container restarts.
+
+To enable **name-based communication**, you need to create a **custom bridge network**.
+
+---
+## **Example: How Default Bridge Works**
+Run a PostgreSQL container **without a custom network**:
+```sh
+docker run -d --name my_postgres -p 5432:5432 postgres
+```
+Now:
+- The container gets an internal IP (`172.17.0.2`).
+- The host can access PostgreSQL via `localhost:5432`.
+- **Other containers cannot access `my_postgres` using the name**, only via `172.17.0.2`.
+
+---
+
+## **Limitations of Default Bridge Network**
+- 🚫 **No automatic DNS resolution** → Containers cannot talk to each other using names.
+- 🚫 **Not suitable for microservices** → Hard to manage changing internal IPs.
+- 🚫 **Less control over networking** → No subnet customization.
+
+To fix this, use a **custom bridge network**:
+```sh
+docker network create my_bridge
+```
+Then, start containers in that network:
+```sh
+docker run -d --network my_bridge --name my_postgres postgres
+docker run -d --network my_bridge --name my_app go_bank
+```
+✅ Now, `my_app` can connect to PostgreSQL using `my_postgres:5432`.
+
+---
+
+## **Summary**
+✅ The **default bridge** allows:
+- Basic networking between containers **via IP**.
+- Host-to-container communication via **port mapping** (`-p`).
+
+❌ But it **does not**:
+- Allow **container name-based communication**.
+- Provide **networking flexibility** for microservices.
+
+💡 **Solution:** Use a **custom bridge network** for better connectivity!
+
+

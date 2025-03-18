@@ -11,8 +11,10 @@ type Config struct {
 	ADDRESS  string `mapstructure:"ADDRESS"`
 }
 
-func LoadConfig(path string) (config Config, err error) {
-	viper.AddConfigPath(path)
+func LoadConfig(path []string) (config Config, err error) {
+	for _, p := range path {
+		viper.AddConfigPath(p)
+	}
 	viper.SetConfigName("app")
 	viper.SetConfigType("env")
 
