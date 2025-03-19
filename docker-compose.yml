@@ -1,0 +1,18 @@
+services:
+  postgres:
+    image:  postgres:17.4-alpine3.21 
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=123
+      - POSTGRES_DB=go_bank
+  api:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      # edit: localhost to postgres (services running in same network)
+      - DB_SOURCE=postgresql://postgres:123@postgres:5432/go_bank?sslmode=disable
+    depends_on:
+      - postgres
