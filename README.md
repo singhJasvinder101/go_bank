@@ -8,13 +8,13 @@ Go Bank is a backend system designed to handle transactions efficiently. This pr
 - [x] **Dockerized PostgreSQL Instance** - Running the database inside a container.
 - [x] **Database Migrations** - Using **migrate** to handle schema vrsion control.
 - [x] **SQL Queries with sqlc** - Generating type-safe queries.
-- [ ] **API Development** - Implementing APIs.
+- [x] **API Development** - Implementing APIs.
 - [ ] **User Authentication** - Adding JWT-based authentication.
-- [ ] **Transaction Handling** - Ensuring atomicity and consistency.
-- [ ] **Unit & Integration Testing** - Writing test cases for reliability.
+- [x] **Transaction Handling** - Ensuring atomicity and consistency.
+- [x] **Unit & Integration Testing** - Writing test cases for reliability.
 - [ ] **gRPC Support** - Implementing efficient communication between microservices.
 - [ ] **Kubernetes Deployment** - Managing scalability and orchestration.
-- [ ] **CI/CD Pipelines** - Automating testing and deployments.
+- [x] **CI/CD Pipelines** - Automating testing and deployments.
 - [ ] **Monitoring & Logging** - Integrating tools like Prometheus and Grafana.
 
 ## Setup Instructions 
